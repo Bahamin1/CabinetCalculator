@@ -18,7 +18,7 @@ type DoorOrientation = 'vertical' | 'horizontal'
 interface Dimensions {
   کف  : string
   کنارها: string
-  سفف: string
+  سقف: string
   پشت: string
   درب: string
   پارتیشن?: string
@@ -88,7 +88,7 @@ export default function CabinetCalculator() {
       newDimensions = {
         کف: `${length}x${depth} ( x 1 )`,
         کنارها: `${height}x${depth} ( x 2 )`,
-        سفف: `7x${(length - 3.2).toFixed(1)} ( x 2 )`,
+        سقف: `7x${(length - 3.2).toFixed(1)} ( x 2 )`,
         پشت: `${length}x${(height - 2).toFixed(1)} ( x 1 )`,
         درب: calculateDoor(),
         طبقه: includeShelf ? `${(length - 3.2).toFixed(1)}x${(depth - 2).toFixed(1)}` : undefined,
@@ -102,7 +102,7 @@ export default function CabinetCalculator() {
       newDimensions = {
         کف: `${length}x${depth} ( x 1 )`,
         کنارها: `${height}x${depth} ( x 2 )`,
-        سفف: `${length}x${depth} ( x 1 )`,
+        سقف: `${length}x${depth} ( x 1 )`,
         پشت: `${length}x${height} ( x 1 )`,
         درب: calculateDoor(),
         طبقه: includeShelf ? `${(length - 3.2).toFixed(1)}x${depth - 1}` : undefined,
@@ -110,7 +110,7 @@ export default function CabinetCalculator() {
       }
 
       if (doorOrientation === 'horizontal') {
-        newDimensions.قیددرب = calculateقیددرب()
+        newDimensions.قیددرب = calculateQeyd()
       }
     }
 
@@ -134,7 +134,7 @@ export default function CabinetCalculator() {
     }
   }
 
-  const calculateقیددرب = (): string => {
+  const calculateQeyd = (): string => {
     const qeydCount = Math.max(0, doorCount - 1)
     const qeydLength = (length / 100) * 69.8
     return `7x${qeydLength.toFixed(1)} ( x ${qeydCount} )`
@@ -314,11 +314,11 @@ export default function CabinetCalculator() {
                 <h3 className="font-semibold mb-2">
                   {unit.type === 'base' ? 'کابینت زمینی' : 'کابینت دیواری'} {unit.length} سانتی‌متر
                 </h3>
-                <p>کف: {unit.dimensions.کف}</p>
-                <p>کناره‌ها: {unit.dimensions.کنارها}</p>
-                <p>بالا: {unit.dimensions.سفف}</p>
-                <p>پشت: {unit.dimensions.پشت}</p>
-                <p>در: {unit.dimensions.درب}</p>
+                <p> {unit.dimensions.کف}</p>
+                <p> {unit.dimensions.کنارها}</p>
+                <p> {unit.dimensions.سقف}</p>
+                <p> {unit.dimensions.پشت}</p>
+                <p> {unit.dimensions.درب}</p>
                 {unit.dimensions.پارتیشن && <p>پارتیشن میانی: {unit.dimensions.پارتیشن}</p>}
                 {unit.dimensions.طبقه && <p>طبقه: {unit.dimensions.طبقه}</p>}
                 <p>قید : {unit.dimensions.قید}</p>
