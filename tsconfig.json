@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      
+      "jsx": "react",
+      "baseUrl": ".",
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "module": "esnext", 
+      "target": "es6" 
+ 
+      
+    }
+  }
