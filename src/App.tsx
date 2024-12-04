@@ -4,6 +4,7 @@ import { Separator } from '@radix-ui/react-select'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Calculator, DoorOpen, Globe, History, Layers, Ruler } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
+import styles from './CabinetCalculator.module.css'
 import { Button } from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
 import { Input } from "./components/ui/input"
@@ -11,7 +12,6 @@ import { Label } from "./components/ui/lable"
 import { RadioGroup, RadioGroupItem } from "./components/ui/radioGroup"
 import { ScrollArea } from "./components/ui/scrollArea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
-import { Switch } from "./components/ui/switch"
 
 type CabinetType = 'base' | 'wall' | 'full'
 type DoorOrientation = 'vertical' | 'horizontal'
@@ -91,8 +91,8 @@ const translations = {
     baseType: "کابینت زمینی",
     wallType: "کابینت دیواری",
     fullType: "کابینت تمام قد",
-    includeShelf: "شامل قفسه",
-    shelfCount: "تعداد قفسه‌ها",
+    includeShelf: "شامل قفسه(طبقه)",
+    shelfCount: "تعداد قفسه‌ها(طبقه)",
     doorConfiguration: "پیکربندی درب",
     doorCount: "تعداد درب‌ها",
     doorOrientation: "جهت درب",
@@ -264,114 +264,121 @@ export default function CabinetCalculator() {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8 ${language === 'FA' ? 'rtl' : 'ltr'}`}>
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-indigo-800">{t.title}</h1>
+    <div className={`${styles.container} ${language === 'FA' ? styles.rtl : styles.ltr}`}>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>{t.title}</h1>
           <Button
             onClick={() => setLanguage(lang => lang === 'EN' ? 'FA' : 'EN')}
             variant="outline"
             size="icon"
+            className={styles.languageToggle}
           >
             <Globe className="h-4 w-4" />
           </Button>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="col-span-1 lg:col-span-2 bg-white shadow-lg">
-            <CardHeader className="bg-indigo-600 text-white">
-              <CardTitle className="flex items-center gap-2 text-2xl">
+        <div className={styles.grid}>
+          <Card className={styles.card}>
+            <CardHeader className={styles.cardHeader}>
+              <CardTitle className={styles.cardTitle}>
                 <Calculator className="w-6 h-6" />
                 <span>{t.cabinetOptions}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-indigo-700 flex items-center gap-2">
+            <CardContent className={styles.cardContent}>
+              <div className={styles.optionsGrid}>
+                <div className={styles.optionSection}>
+                  <h3 className={styles.sectionTitle}>
                     <Ruler className="w-5 h-5" />
                     {t.dimensions}
                   </h3>
-                  <div>
-                    <Label htmlFor="length" className="text-sm font-medium text-gray-700">{t.length}</Label>
+                  <div className={styles.inputGroup}>
+                    <Label htmlFor="length" className={styles.label}>{t.length}</Label>
                     <Input
                       id="length"
                       type="number"
                       value={length || ''}
                       onChange={(e) => setLength(Number(e.target.value))}
-                      className="mt-1 w-full"
+                      className={styles.input}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="height" className="text-sm font-medium text-gray-700">{t.height}</Label>
+                  <div className={styles.inputGroup}>
+                    <Label htmlFor="height" className={styles.label}>{t.height}</Label>
                     <Input
                       id="height"
                       type="number"
                       value={height || ''}
                       onChange={(e) => setHeight(Number(e.target.value))}
-                      className="mt-1 w-full"
+                      className={styles.input}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="depth" className="text-sm font-medium text-gray-700">{t.depth}</Label>
+                  <div className={styles.inputGroup}>
+                    <Label htmlFor="depth" className={styles.label}>{t.depth}</Label>
                     <Input
                       id="depth"
                       type="number"
                       value={depth || ''}
                       onChange={(e) => setDepth(Number(e.target.value))}
-                      className="mt-1 w-full"
+                      className={styles.input}
                     />
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-indigo-700 flex items-center gap-2">
+                <div className={styles.optionSection}>
+                  <h3 className={styles.sectionTitle}>
                     <DoorOpen className="w-5 h-5" />
                     {t.cabinetOptions}
                   </h3>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700">{t.cabinetType}</Label>
-                    <RadioGroup defaultValue={cabinetType} onValueChange={(value: CabinetType) => setCabinetType(value)} className="mt-2 space-y-2">
-                      <div className="flex items-center space-x-2">
+                  <div className={styles.radioGroup}>
+                    <Label className={styles.label}>{t.cabinetType}</Label>
+                    <RadioGroup defaultValue={cabinetType} onValueChange={(value: CabinetType) => setCabinetType(value)} className={styles.radioOptions}>
+                      <div className={styles.radioOption}>
                         <RadioGroupItem value="base" id="base" />
                         <Label htmlFor="base">{t.baseType}</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className={styles.radioOption}>
                         <RadioGroupItem value="wall" id="wall" />
                         <Label htmlFor="wall">{t.wallType}</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className={styles.radioOption}>
                         <RadioGroupItem value="full" id="full" />
                         <Label htmlFor="full">{t.fullType}</Label>
                       </div>
                     </RadioGroup>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch
+                  <div className={styles.Switch}>
+                  <label className="custom-switch">
+                    <input
+                      type="checkbox"
                       id="include-shelf"
                       checked={includeShelf}
-                      onCheckedChange={setIncludeShelf}
+                      onChange={(e) => setIncludeShelf(e.target.checked)}
                     />
-                    <Label htmlFor="include-shelf" className="text-sm font-medium text-gray-700">{t.includeShelf}</Label>
-                  </div>
-                  {includeShelf && (
-                    <div>
-                      <Label htmlFor="shelfCount" className="text-sm font-medium text-gray-700">{t.shelfCount}</Label>
-                      <Input
-                        id="shelfCount"
-                        type="number"
-                        value={shelfCount}
-                        onChange={(e) => setShelfCount(Number(e.target.value))}
-                        className="mt-1 w-full"
-                      />
-                    </div>
-                  )}
+                    <span className="slider"></span>
+                  </label>
+                  <Label htmlFor="include-shelf">{t.includeShelf}</Label>
                 </div>
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-indigo-700 flex items-center gap-2">
+
+                {includeShelf && (
+                  <div>
+                    <Label htmlFor="shelfCount">{t.shelfCount}</Label>
+                    <Input
+                      id="shelfCount"
+                      type="number"
+                      value={shelfCount}
+                      onChange={(e) => setShelfCount(Number(e.target.value))}
+                      className={styles.checkbox}
+                    />
+                  </div>
+                )}
+
+                </div>
+                <div className={styles.optionSection}>
+                  <h3 className={styles.sectionTitle}>
                     <Layers className="w-5 h-5" />
                     {t.doorConfiguration}
                   </h3>
-                  <div>
-                    <Label htmlFor="doorCount" className="text-sm font-medium text-gray-700">{t.doorCount}</Label>
+                  <div className={styles.inputGroup}>
+                    <Label htmlFor="doorCount" className={styles.label}>{t.doorCount}</Label>
                     <Input
                       id="doorCount"
                       type="number"
@@ -381,20 +388,20 @@ export default function CabinetCalculator() {
                         setManualDoorCount(value)
                         setDoorCount(value)
                       }}
-                      className="mt-1 w-full"
+                      className={styles.input}
                     />
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className={styles.helperText}>
                       {manualDoorCount ? t.manual : t.automatic}
                     </p>
                   </div>
                   {cabinetType === 'wall' && (
-                    <div>
-                      <Label htmlFor="doorOrientation" className="text-sm font-medium text-gray-700">{t.doorOrientation}</Label>
+                    <div className={styles.selectGroup}>
+                      <Label htmlFor="doorOrientation" className={styles.label}>{t.doorOrientation}</Label>
                       <Select
                         value={doorOrientation}
                         onValueChange={(value: DoorOrientation) => setDoorOrientation(value)}
                       >
-                        <SelectTrigger className="w-full mt-1">
+                        <SelectTrigger className={styles.select}>
                           <SelectValue placeholder={t.doorOrientation} />
                         </SelectTrigger>
                         <SelectContent>
@@ -405,13 +412,13 @@ export default function CabinetCalculator() {
                     </div>
                   )}
                   {cabinetType === 'full' && (
-                    <div>
-                      <Label htmlFor="doorDivision" className="text-sm font-medium text-gray-700">{t.doorDivision}</Label>
+                    <div className={styles.selectGroup}>
+                      <Label htmlFor="doorDivision" className={styles.label}>{t.doorDivision}</Label>
                       <Select
                         value={doorDivision}
                         onValueChange={(value: DoorDivision) => setDoorDivision(value)}
                       >
-                        <SelectTrigger className="w-full mt-1">
+                        <SelectTrigger className={styles.select}>
                           <SelectValue placeholder={t.doorDivision} />
                         </SelectTrigger>
                         <SelectContent>
@@ -423,9 +430,9 @@ export default function CabinetCalculator() {
                   )}
                 </div>
               </div>
-              <Separator className="my-6" />
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-indigo-700 flex items-center gap-2">
+              <Separator className={styles.separator} />
+              <div className={styles.calculatedDimensions}>
+                <h3 className={styles.sectionTitle}>
                   <Calculator className="w-5 h-5" />
                   {t.calculatedDimensions}
                 </h3>
@@ -436,58 +443,58 @@ export default function CabinetCalculator() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.5 }}
-                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                      className={styles.dimensionsGrid}
                     >
                       {Object.entries(dimensions).map(([key, value]) => (
-                        <motion.div key={key} layout className="bg-indigo-50 p-3 rounded-md">
-                          <span className="capitalize font-medium text-indigo-700">{t[key as keyof typeof t]}:</span>
-                          <span className={`block mt-1 ${key === 'door' ? 'font-bold text-indigo-600' : 'text-gray-700'}`}>{value}</span>
+                        <motion.div key={key} layout className={styles.dimensionItem}>
+                          <span className={styles.dimensionLabel}>{t[key as keyof typeof t]}:</span>
+                          <span className={`${styles.dimensionValue} ${key === 'door' ? styles.doorValue : ''}`}>{value}</span>
                         </motion.div>
                       ))}
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-              <div className="mt-6 flex justify-center">
-                <Button onClick={storeInHistory} size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <div className={styles.storeButtonContainer}>
+                <Button onClick={storeInHistory} size="lg" className={styles.storeButton}>
                   <History className="w-5 h-5 mr-2" />
                   {t.storeInHistory}
                 </Button>
               </div>
             </CardContent>
           </Card>
-          <Card className="col-span-1 lg:col-span-2 bg-white shadow-lg">
-            <CardHeader className="bg-indigo-600 text-white">
-              <CardTitle className="flex items-center gap-2 text-2xl">
+          <Card className={styles.card}>
+            <CardHeader className={styles.cardHeader}>
+              <CardTitle className={styles.cardTitle}>
                 <History className="w-6 h-6" />
                 <span>{t.cabinetHistory}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
-              <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+            <CardContent className={styles.cardContent}>
+              <ScrollArea className={styles.historyScrollArea}>
                 {history.map((unit, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="mb-4 p-4 border rounded-md bg-indigo-50 shadow-sm"
+                    className={styles.historyItem}
                   >
-                    <h3 className="font-semibold mb-2 text-indigo-700">
+                    <h3 className={styles.historyItemTitle}>
                       {t[unit.type as keyof typeof t]} {unit.length} cm
                     </h3>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <p><span className="font-medium">{t.floor}:</span> {unit.dimensions.floor}</p>
-                      <p><span className="font-medium">{t.sides}:</span> {unit.dimensions.sides}</p>
-                      <p><span className="font-medium">{t.top}:</span> {unit.dimensions.top}</p>
-                      <p><span className="font-medium">{t.back}:</span> {unit.dimensions.back}</p>
-                      <p><span className="font-medium">{t.door}:</span> {unit.dimensions.door}</p>
-                      {unit.dimensions.middlePartition && <p><span className="font-medium">{t.middlePartition}:</span> {unit.dimensions.middlePartition}</p>}
-                      {unit.dimensions.shelf && <p><span className="font-medium">{t.shelf}:</span> {unit.dimensions.shelf}</p>}
-                      <p><span className="font-medium">{t.additionalPiece}:</span> {unit.dimensions.additionalPiece}</p>
-                      {unit.dimensions.doorQeyd && <p><span className="font-medium">{t.doorQeyd}:</span> {unit.dimensions.doorQeyd}</p>}
-                      {unit.type === 'wall' && <p><span className="font-medium">{t.doorOrientation}:</span> {t[unit.doorOrientation as keyof typeof t]}</p>}
-                      {unit.type === 'full' && <p><span className="font-medium">{t.doorDivision}:</span> {t[unit.doorDivision === 'length' ? 'byLength' : 'byHeight']}</p>}
+                    <div className={styles.historyItemGrid}>
+                      <p><span className={styles.historyLabel}>{t.floor}:</span> {unit.dimensions.floor}</p>
+                      <p><span className={styles.historyLabel}>{t.sides}:</span> {unit.dimensions.sides}</p>
+                      <p><span className={styles.historyLabel}>{t.top}:</span> {unit.dimensions.top}</p>
+                      <p><span className={styles.historyLabel}>{t.back}:</span> {unit.dimensions.back}</p>
+                      <p><span className={styles.historyLabel}>{t.door}:</span> {unit.dimensions.door}</p>
+                      {unit.dimensions.middlePartition && <p><span className={styles.historyLabel}>{t.middlePartition}:</span> {unit.dimensions.middlePartition}</p>}
+                      {unit.dimensions.shelf && <p><span className={styles.historyLabel}>{t.shelf}:</span> {unit.dimensions.shelf}</p>}
+                      <p><span className={styles.historyLabel}>{t.additionalPiece}:</span> {unit.dimensions.additionalPiece}</p>
+                      {unit.dimensions.doorQeyd && <p><span className={styles.historyLabel}>{t.doorQeyd}:</span> {unit.dimensions.doorQeyd}</p>}
+                      {unit.type === 'wall' && <p><span className={styles.historyLabel}>{t.doorOrientation}:</span> {t[unit.doorOrientation as keyof typeof t]}</p>}
+                      {unit.type === 'full' && <p><span className={styles.historyLabel}>{t.doorDivision}:</span> {t[unit.doorDivision === 'length' ? 'byLength' : 'byHeight']}</p>}
                     </div>
                   </motion.div>
                 ))}
