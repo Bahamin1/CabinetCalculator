@@ -1,17 +1,21 @@
 'use client'
 
 import { Separator } from '@radix-ui/react-select'
+import { Switch } from '@radix-ui/react-switch'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Calculator, DoorOpen, Globe, History, Layers, Ruler } from 'lucide-react'
+import { Calculator, DoorOpen, Eye, Globe, History, Layers, Ruler } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import styles from './CabinetCalculator.module.css'
+import { CabinetVisualization } from './components/CabinetVisualization'
+import visualizationStyles from './components/CabinetVisualization.module.css'
 import { Button } from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
 import { Input } from "./components/ui/input"
-import { Label } from "./components/ui/lable"
+import { Label } from "./components/ui/label"
 import { RadioGroup, RadioGroupItem } from "./components/ui/radioGroup"
 import { ScrollArea } from "./components/ui/scrollArea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
+
 
 type CabinetType = 'base' | 'wall' | 'full'
 type DoorOrientation = 'vertical' | 'horizontal'
@@ -79,6 +83,8 @@ const translations = {
     doorQeyd: "Door Qeyd",
     manual: "Manual",
     automatic: "Automatic (based on length)",
+    cabinetVisualization: "Cabinet Visualization",
+
   },
   FA: {
     title: "محاسبه‌گر کابینت آشپزخانه",
@@ -115,6 +121,8 @@ const translations = {
     doorQeyd: "قید درب",
     manual: "دستی",
     automatic: "خودکار (بر اساس طول)",
+    cabinetVisualization: "تجسم کابینت",
+
   }
 }
 
@@ -273,6 +281,7 @@ export default function CabinetCalculator() {
             variant="outline"
             size="icon"
             className={styles.languageToggle}
+            aria-label={`Switch to ${language === 'EN' ? 'Persian' : 'English'}`}
           >
             <Globe className="h-4 w-4" />
           </Button>
@@ -331,46 +340,40 @@ export default function CabinetCalculator() {
                   <div className={styles.radioGroup}>
                     <Label className={styles.label}>{t.cabinetType}</Label>
                     <RadioGroup defaultValue={cabinetType} onValueChange={(value: CabinetType) => setCabinetType(value)} className={styles.radioOptions}>
-                      <div className={styles.radioOption}>
+                      <div className="flex items-center space-x-2">
                         <RadioGroupItem value="base" id="base" />
                         <Label htmlFor="base">{t.baseType}</Label>
                       </div>
-                      <div className={styles.radioOption}>
+                      <div className="flex items-center space-x-2">
                         <RadioGroupItem value="wall" id="wall" />
                         <Label htmlFor="wall">{t.wallType}</Label>
                       </div>
-                      <div className={styles.radioOption}>
+                      <div className="flex items-center space-x-2">
                         <RadioGroupItem value="full" id="full" />
                         <Label htmlFor="full">{t.fullType}</Label>
                       </div>
                     </RadioGroup>
                   </div>
-                  <div className={styles.Switch}>
-                  <label className="custom-switch">
-                    <input
-                      type="checkbox"
+                  <div className={styles.switchGroup}>
+                    <Switch
                       id="include-shelf"
                       checked={includeShelf}
-                      onChange={(e) => setIncludeShelf(e.target.checked)}
+                      onCheckedChange={setIncludeShelf}
                     />
-                    <span className="slider"></span>
-                  </label>
-                  <Label htmlFor="include-shelf">{t.includeShelf}</Label>
-                </div>
-
-                {includeShelf && (
-                  <div>
-                    <Label htmlFor="shelfCount">{t.shelfCount}</Label>
-                    <Input
-                      id="shelfCount"
-                      type="number"
-                      value={shelfCount}
-                      onChange={(e) => setShelfCount(Number(e.target.value))}
-                      className={styles.checkbox}
-                    />
+                    <Label htmlFor="include-shelf">{t.includeShelf}</Label>
                   </div>
-                )}
-
+                  {includeShelf && (
+                    <div>
+                      <Label htmlFor="shelfCount">{t.shelfCount}</Label>
+                      <Input
+                        id="shelfCount"
+                        type="number"
+                        value={shelfCount}
+                        onChange={(e) => setShelfCount(Number(e.target.value))}
+                        className={styles.checkbox}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className={styles.optionSection}>
                   <h3 className={styles.sectionTitle}>
@@ -454,6 +457,21 @@ export default function CabinetCalculator() {
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </div>
+              <div className={visualizationStyles.visualizationContainer}>
+                <h3 className={styles.sectionTitle}>
+                  <Eye className="w-5 h-5" />
+                  {t.cabinetVisualization}
+                </h3>
+                <CabinetVisualization
+                  type={cabinetType}
+                  length={length}
+                  height={height}
+                  depth={depth}
+                  doorCount={doorCount}
+                  doorOrientation={doorOrientation}
+                  doorDivision={doorDivision}
+                />
               </div>
               <div className={styles.storeButtonContainer}>
                 <Button onClick={storeInHistory} size="lg" className={styles.storeButton}>

@@ -6,16 +6,16 @@
 }
 
 
-/* استایل برای کل گروه Switch */
+
 .Switch {
     display: flex;
     align-items: center;
     gap: 10px;
-    /* فاصله بین سوئیچ و لیبل */
+
     margin-bottom: 16px;
 }
 
-/* استایل سوئیچ سفارشی */
+
 .custom-switch {
     position: relative;
     width: 50px;
@@ -23,10 +23,10 @@
     display: inline-block;
 }
 
-/* پس‌زمینه سوئیچ */
+
 .custom-switch input {
     display: none;
-    /* مخفی کردن input اصلی */
+
 }
 
 .custom-switch .slider {
@@ -40,7 +40,7 @@
     transition: background-color 0.3s ease;
 }
 
-/* دایره داخلی */
+
 .custom-switch .slider::before {
     content: "";
     position: absolute;
@@ -54,17 +54,14 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* استایل سوئیچ در حالت فعال */
 .custom-switch input:checked+.slider {
     background-color: #4caf50;
 }
 
 .custom-switch input:checked+.slider::before {
     transform: translateX(26px);
-    /* دایره به سمت راست حرکت می‌کند */
 }
 
-/* استایل برای Input عدد */
 .checkbox {
     margin-top: 8px;
     padding: 6px 8px;
@@ -301,7 +298,7 @@
     font-weight: 500;
 }
 
-/* RTL-specific styles */
+
 .rtl .languageToggle,
 .rtl .input,
 .rtl .select {
