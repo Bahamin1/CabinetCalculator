@@ -21,6 +21,7 @@ type CabinetType = 'base' | 'wall' | 'full'
 type DoorOrientation = 'vertical' | 'horizontal'
 type DoorDivision = 'length' | 'height'
 type Language = 'EN' | 'FA'
+type HandleType = 'modern' | 'classic' | 'magnet'
 
 interface Dimensions {
   floor: string
@@ -45,6 +46,7 @@ interface CabinetUnit {
   doorOrientation: DoorOrientation
   doorDivision: DoorDivision
   dimensions: Dimensions
+  handleType: HandleType
 }
 
 const translations = {
@@ -84,6 +86,10 @@ const translations = {
     manual: "Manual",
     automatic: "Automatic (based on length)",
     cabinetVisualization: "Cabinet Visualization",
+    handleType: "Handle Type",
+    modern: "Modern",
+    classic: "Classic",
+    magnet: "Magnet",
 
   },
   FA: {
@@ -122,6 +128,10 @@ const translations = {
     manual: "دستی",
     automatic: "خودکار (بر اساس طول)",
     cabinetVisualization: "تجسم کابینت",
+    handleType: "نوع دستگیره",
+    modern: "مدرن",
+    classic: "کلاسیک",
+    magnet: "مغناطیسی",
 
   }
 }
@@ -140,6 +150,7 @@ export default function CabinetCalculator() {
   const [doorDivision, setDoorDivision] = useState<DoorDivision>('length')
   const [dimensions, setDimensions] = useState<Dimensions | null>(null)
   const [history, setHistory] = useState<CabinetUnit[]>([])
+  const [handleType, setHandleType] = useState<HandleType>('modern')
 
   const t = translations[language]
 
@@ -188,7 +199,7 @@ export default function CabinetCalculator() {
     if (length > 0 && height > 0 && depth > 0) {
       calculateDimensions()
     }
-  }, [length, height, depth, includeShelf, shelfCount, cabinetType, doorCount, doorOrientation, doorDivision])
+  }, [length, height, depth, includeShelf, shelfCount, cabinetType, doorCount, doorOrientation, doorDivision, handleType])
 
   const calculateDimensions = () => {
     let newDimensions: Dimensions = {
@@ -265,7 +276,8 @@ export default function CabinetCalculator() {
         doorCount,
         doorOrientation,
         doorDivision,
-        dimensions
+        dimensions,
+        handleType
       }
       setHistory([...history, newUnit])
     }
@@ -431,6 +443,22 @@ export default function CabinetCalculator() {
                       </Select>
                     </div>
                   )}
+                  <div className={styles.selectGroup}>
+                    <Label htmlFor="handleType" className={styles.label}>{t.handleType}</Label>
+                    <Select
+                      value={handleType}
+                      onValueChange={(value: HandleType) => setHandleType(value)}
+                    >
+                      <SelectTrigger className={styles.select}>
+                        <SelectValue placeholder={t.handleType} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="modern">{t.modern}</SelectItem>
+                        <SelectItem value="classic">{t.classic}</SelectItem>
+                        <SelectItem value="magnet">{t.magnet}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
               <Separator className={styles.separator} />
@@ -471,6 +499,7 @@ export default function CabinetCalculator() {
                   doorCount={doorCount}
                   doorOrientation={doorOrientation}
                   doorDivision={doorDivision}
+                  handleType={handleType}
                 />
               </div>
               <div className={styles.storeButtonContainer}>

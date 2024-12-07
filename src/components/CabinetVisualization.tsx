@@ -17,6 +17,7 @@ interface CabinetProps {
   doorCount: number
   doorOrientation: DoorOrientation
   doorDivision: DoorDivision
+  handleType: 'modern' | 'classic' | 'magnet'
 }
 
 const Cabinet: React.FC<CabinetProps> = ({
@@ -27,6 +28,7 @@ const Cabinet: React.FC<CabinetProps> = ({
   doorCount,
   doorOrientation,
   doorDivision,
+  handleType,
 }) => {
   const cabinetRef = useRef<THREE.Group>(null)
   const { scene } = useThree()
@@ -54,6 +56,44 @@ const Cabinet: React.FC<CabinetProps> = ({
     const doorThickness = 0.016 // 1.6 cm door thickness
     const frameGap = 0.005 // 1 mm gap from frame
     const doorGap = 0.003 // 2 mm gap between doors
+
+    const renderHandle = (doorWidth: number, doorHeight: number, xPos: number, yPos: number, zPos: number, cabinetType: 'base' | 'wall' | 'full') => {
+      if (handleType === 'classic') {
+        // For base cabinets, handle at the top center of the door
+        if (cabinetType === 'base') {
+          return (
+            <mesh position={[xPos, doorHeight / 1.1 - 0.00, zPos + doorThickness / 2 + 0.01]}>
+              <boxGeometry args={[0.2, 0.02, 0.01]} />
+              <meshStandardMaterial color="#808080" />
+            </mesh>
+          );
+        }
+    
+        // For wall cabinets, handle at the bottom center of the door
+        if (cabinetType === 'wall') {
+          return (
+            <mesh position={[xPos, -(doorHeight / 2 - 0.5), zPos + doorThickness / 2 + 0.01]}>
+              <boxGeometry args={[0.2, 0.02, 0.01]} />
+              <meshStandardMaterial color="#808080" />
+            </mesh>
+          );
+        }
+    
+        // For full cabinets, handle at the center of the door
+        if (cabinetType === 'full') {
+          return (
+            <mesh position={[xPos, 1, zPos + doorThickness / 2 + 0.01]}>
+              <boxGeometry args={[0.2, 0.02, 0.01]} />
+              <meshStandardMaterial color="#808080" />
+            </mesh>
+          );
+        }
+      }
+    
+      // Return null if handle type is not "classic"
+      return null;
+    };
+    
 
     return (
       <group ref={cabinetRef}>
@@ -84,6 +124,12 @@ const Cabinet: React.FC<CabinetProps> = ({
               <boxGeometry args={[l + 0.02, 0.05, d + 0.05]} />
               <meshStandardMaterial color="#f3f3f3" />
             </mesh>
+            {handleType === 'modern' && (
+              <mesh position={[0, h - 0.035, d / 2 - 0.0125]}>
+                <boxGeometry args={[l, 0.07, 0.025]} />
+                <meshStandardMaterial color="#dddedf" />
+              </mesh>
+            )}
           </>
         )}
 
@@ -104,16 +150,24 @@ const Cabinet: React.FC<CabinetProps> = ({
             zPos = d / 2 + doorThickness / 2
           }
 
+          if (handleType === 'modern' && type === 'base') {
+            doorHeight -= 0.045 // Reduce door height by 4.5 cm
+            yPos -= 0.0225 // Adjust door position
+          }
+
           return (
-            <mesh key={index} position={[xPos, yPos, zPos]}>
-              <boxGeometry args={[doorWidth, doorHeight, doorThickness]} />
-              <primitive object={doorMaterial} />
-            </mesh>
+            <group key={index}>
+              <mesh position={[xPos, yPos, zPos]}>
+                <boxGeometry args={[doorWidth, doorHeight, doorThickness]} />
+                <primitive object={doorMaterial} />
+              </mesh>
+              {renderHandle(doorWidth, doorHeight, xPos, yPos, zPos , type)}
+            </group>
           )
         })}
       </group>
     )
-  }, [type, length, height, depth, doorCount, doorOrientation, doorDivision, doorMaterial])
+  }, [type, length, height, depth, doorCount, doorOrientation, doorDivision, doorMaterial, handleType])
 
   // Center the cabinet
   useFrame(() => {
@@ -144,3 +198,4 @@ export const CabinetVisualization: React.FC<CabinetProps> = (props) => {
     </div>
   )
 }
+
