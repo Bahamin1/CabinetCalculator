@@ -35,6 +35,7 @@ interface Dimensions {
   shelf?: string
   additionalPiece?: string
   doorQeyd?: string
+  qeyd?: string
 }
 
 interface CabinetUnit {
@@ -98,6 +99,7 @@ const translations = {
     mpFitting: "MP (Fitting/Slot)",
     mdfFullFit: "MDF (Full Fit)",
     showModel: "Show 3D Model",
+    qeyd: "Qeyd"
   },
   FA: {
     title: "محاسبه‌گر کابینت آشپزخانه",
@@ -144,6 +146,7 @@ const translations = {
     mpFitting: "MP (فیتینگ/شیار)",
     mdfFullFit: "MDF (فیت کامل)",
     showModel: "نمایش مدل سه بعدی",
+    qeyd: "قید",
   }
 }
 
@@ -172,18 +175,18 @@ export default function CabinetCalculator() {
 
   useEffect(() => {
     if (cabinetType === 'base') {
-      setDepth(56)
+      setDepth(55)
       setHeight(72)
       setDoorOrientation('vertical')
       setShelfCount(1)
       setDoorDivision('length')
     } else if (cabinetType === 'wall') {
       setDepth(32)
-      setHeight(83)
+      setHeight(90)
       setShelfCount(1)
       setDoorDivision('length')
     } else if (cabinetType === 'full') {
-      setDepth(56)
+      setDepth(55)
       setHeight(240)
       setDoorOrientation('vertical')
       setShelfCount(4)
@@ -224,14 +227,25 @@ export default function CabinetCalculator() {
       top: `${length}x${depth} ( x 1 )`,
       back: calculateBackDimensions(),
       door: calculateDoor(),
-      additionalPiece: `7x${(length - 3.2).toFixed(1)} ( x 2 )`
+      qeyd: `7x${(length - 3.2).toFixed(1)} ( x 2 )`
+    }
+
+    if (cabinetType === 'wall') {
+      newDimensions.top = `${(length - 3.2).toFixed(1)}x${depth} ( x 1 )`
+      newDimensions.floor = `${(length - 3.2).toFixed(1)}x${depth} ( x 1 )`
+      newDimensions.sides = `${height} x ${depth} (x 2)`
+      
+      if (length > 110) {
+        newDimensions.middlePartition = `7x${height -3.2 } ( x 2 )`
+      }
     }
 
     if (cabinetType === 'base') {
       newDimensions.top = `7x${(length - 3.2).toFixed(1)} ( x 2 )`
       newDimensions.back = calculateBackDimensions()
+      newDimensions.qeyd = null
       if (length > 110) {
-        newDimensions.middlePartition = `7x${height} ( x 3 )`
+        newDimensions.middlePartition = `7x${height - 1.6 } ( x 3 )`
       }
     }
 
@@ -276,7 +290,14 @@ export default function CabinetCalculator() {
     return `${backWidth.toFixed(1)}x${backHeight.toFixed(1)} ( x 1 )`
   }
 
+  
+
   const calculateDoor = (): string => {
+    if (handleType === "modern" && cabinetType === "base") {
+      const doorWidth = (length / doorCount)
+      const doorHeight = height - 5
+      return `${(doorHeight).toFixed(1)}x${(doorWidth - 0.6).toFixed(1)} ( x ${doorCount})`
+    }
     if (cabinetType === 'base') {
       const doorWidth = (length / doorCount)
       const doorHeight = height - 2
@@ -490,7 +511,7 @@ export default function CabinetCalculator() {
                         <SelectTrigger className={styles.select}>
                           <SelectValue placeholder={t.doorOrientation} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white border-2 border-gray-300 rounded-lg shadow-lg">
                           <SelectItem value="vertical">{t.vertical}</SelectItem>
                           <SelectItem value="horizontal">{t.horizontal}</SelectItem>
                         </SelectContent>
@@ -507,9 +528,9 @@ export default function CabinetCalculator() {
                         <SelectTrigger className={styles.select}>
                           <SelectValue placeholder={t.doorDivision} />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="length">{t.byLength}</SelectItem>
-                          <SelectItem value="height">{t.byHeight}</SelectItem>
+                        <SelectContent className="bg-white border-2 border-gray-300 rounded-lg shadow-lg">
+                          <SelectItem value="mp-mounted" className="hover:bg-gray-100">{t.byLength}</SelectItem>
+                          <SelectItem value="mp-mounted" className="hover:bg-gray-100">{t.byHeight}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -523,7 +544,7 @@ export default function CabinetCalculator() {
                       <SelectTrigger className={styles.select}>
                         <SelectValue placeholder={t.handleType} />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white border-2 border-gray-300 rounded-lg shadow-lg">
                         <SelectItem value="modern">{t.modern}</SelectItem>
                         <SelectItem value="classic">{t.classic}</SelectItem>
                         <SelectItem value="magnet">{t.magnet}</SelectItem>
