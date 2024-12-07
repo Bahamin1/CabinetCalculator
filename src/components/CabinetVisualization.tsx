@@ -42,8 +42,8 @@ const Cabinet: React.FC<CabinetProps> = ({
     // تنظیمات روشنایی برای متریال
     const material = new THREE.MeshStandardMaterial({
       map: texture,
-      metalness: 0.5,  // کمی فلزی بودن
-      roughness: 0.5,  // سطح کمی صیقلی
+      metalness: 0.4,  // کمی فلزی بودن
+      roughness: 0.1,  // سطح کمی صیقلی
     })
 
     return material
@@ -58,6 +58,18 @@ const Cabinet: React.FC<CabinetProps> = ({
     const doorGap = 0.003 // 2 mm gap between doors
 
     const renderHandle = (doorWidth: number, doorHeight: number, xPos: number, yPos: number, zPos: number, cabinetType: 'base' | 'wall' | 'full') => {
+      if (handleType === 'modern') {
+        if (cabinetType === 'base') {
+          return (
+            <mesh position={[xPos, doorHeight / 0.981 - 0.0, 0.25 + doorThickness / 2 + 0.01]}>
+              <boxGeometry args={[0.51, 0.07, 0.028]} />
+              <meshStandardMaterial color='#808080' />
+            </mesh>
+          );
+        }
+      }
+      
+      
       if (handleType === 'classic') {
         // For base cabinets, handle at the top center of the door
         if (cabinetType === 'base') {
@@ -68,7 +80,7 @@ const Cabinet: React.FC<CabinetProps> = ({
             </mesh>
           );
         }
-    
+
         // For wall cabinets, handle at the bottom center of the door
         if (cabinetType === 'wall') {
           return (
@@ -78,22 +90,21 @@ const Cabinet: React.FC<CabinetProps> = ({
             </mesh>
           );
         }
-    
+
         // For full cabinets, handle at the center of the door
         if (cabinetType === 'full') {
           return (
-            <mesh position={[xPos, 1, zPos + doorThickness / 2 + 0.01]}>
+            <mesh position={[xPos, doorHeight / 1, zPos + doorThickness / 2 + 0.01]}>
               <boxGeometry args={[0.2, 0.02, 0.01]} />
               <meshStandardMaterial color="#808080" />
             </mesh>
           );
         }
       }
-    
+
       // Return null if handle type is not "classic"
       return null;
     };
-    
 
     return (
       <group ref={cabinetRef}>
@@ -136,11 +147,11 @@ const Cabinet: React.FC<CabinetProps> = ({
         {/* Doors */}
         {Array.from({ length: doorCount }).map((_, index) => {
           let doorWidth: number, doorHeight: number, xPos: number, yPos: number, zPos: number
-          if ((type === 'wall' || type === 'full') && doorOrientation === 'horizontal') {
+          if ((type === 'wall' || type === 'full') && (doorOrientation === 'horizontal' || (type === 'full' && doorDivision === 'height'))) {
             doorWidth = l - 2 * frameGap
             doorHeight = (h - (doorCount + 1) * frameGap - doorCount * doorGap) / doorCount
             xPos = 0
-            yPos = h / 1 - frameGap - (index + 0.5) * (doorHeight + frameGap + doorGap)
+            yPos = h - frameGap - (index + 0.5) * (doorHeight + frameGap + doorGap)
             zPos = d / 2 + doorThickness / 2
           } else {
             doorWidth = (l - (doorCount + 1) * frameGap - (doorCount - 1) * doorGap) / doorCount
@@ -148,6 +159,10 @@ const Cabinet: React.FC<CabinetProps> = ({
             xPos = -l / 2 + frameGap + (index + 0.49) * (doorWidth + frameGap + doorGap)
             yPos = h / 2
             zPos = d / 2 + doorThickness / 2
+          }
+
+          if (type === 'full' && doorDivision === 'height') {
+            yPos = h / 2 - (index - (doorCount - 1) / 2) * (doorHeight + frameGap + doorGap)
           }
 
           if (handleType === 'modern' && type === 'base') {
@@ -161,7 +176,7 @@ const Cabinet: React.FC<CabinetProps> = ({
                 <boxGeometry args={[doorWidth, doorHeight, doorThickness]} />
                 <primitive object={doorMaterial} />
               </mesh>
-              {renderHandle(doorWidth, doorHeight, xPos, yPos, zPos , type)}
+              {renderHandle(doorWidth, doorHeight, xPos, yPos, zPos, type)}
             </group>
           )
         })}

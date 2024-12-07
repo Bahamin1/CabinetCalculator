@@ -1,13 +1,13 @@
 'use client'
 
 import { Separator } from '@radix-ui/react-select'
-import { Switch } from '@radix-ui/react-switch'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Calculator, DoorOpen, Eye, Globe, History, Layers, Ruler } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import styles from './CabinetCalculator.module.css'
 import { CabinetVisualization } from './components/CabinetVisualization'
 import visualizationStyles from './components/CabinetVisualization.module.css'
+import { ModelToggle } from './components/ModelToggle'
 import { Button } from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
 import { Input } from "./components/ui/input"
@@ -15,6 +15,7 @@ import { Label } from "./components/ui/label"
 import { RadioGroup, RadioGroupItem } from "./components/ui/radioGroup"
 import { ScrollArea } from "./components/ui/scrollArea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
+import { Toggle } from "./components/ui/toggle"
 
 
 type CabinetType = 'base' | 'wall' | 'full'
@@ -22,6 +23,7 @@ type DoorOrientation = 'vertical' | 'horizontal'
 type DoorDivision = 'length' | 'height'
 type Language = 'EN' | 'FA'
 type HandleType = 'modern' | 'classic' | 'magnet'
+type BackConnectionType = 'mp-mounted' | 'mp-fitting' | 'mdf-full-fit'
 
 interface Dimensions {
   floor: string
@@ -47,6 +49,7 @@ interface CabinetUnit {
   doorDivision: DoorDivision
   dimensions: Dimensions
   handleType: HandleType
+  backConnectionType: BackConnectionType
 }
 
 const translations = {
@@ -90,7 +93,11 @@ const translations = {
     modern: "Modern",
     classic: "Classic",
     magnet: "Magnet",
-
+    backConnectionType: "Back Connection Type",
+    mpMounted: "MP (Mounted on the Body)",
+    mpFitting: "MP (Fitting/Slot)",
+    mdfFullFit: "MDF (Full Fit)",
+    showModel: "Show 3D Model",
   },
   FA: {
     title: "محاسبه‌گر کابینت آشپزخانه",
@@ -132,7 +139,11 @@ const translations = {
     modern: "مدرن",
     classic: "کلاسیک",
     magnet: "مغناطیسی",
-
+    backConnectionType: "نوع اتصال پشت",
+    mpMounted: "MP (نصب شده روی بدنه)",
+    mpFitting: "MP (فیتینگ/شیار)",
+    mdfFullFit: "MDF (فیت کامل)",
+    showModel: "نمایش مدل سه بعدی",
   }
 }
 
@@ -151,6 +162,11 @@ export default function CabinetCalculator() {
   const [dimensions, setDimensions] = useState<Dimensions | null>(null)
   const [history, setHistory] = useState<CabinetUnit[]>([])
   const [handleType, setHandleType] = useState<HandleType>('modern')
+  const [backConnectionType, setBackConnectionType] = useState<BackConnectionType>('mp-mounted')
+  const [showModel, setShowModel] = useState<boolean>(() => {
+    const stored = localStorage.getItem('showModel')
+    return stored ? JSON.parse(stored) : true
+  })
 
   const t = translations[language]
 
@@ -199,21 +215,21 @@ export default function CabinetCalculator() {
     if (length > 0 && height > 0 && depth > 0) {
       calculateDimensions()
     }
-  }, [length, height, depth, includeShelf, shelfCount, cabinetType, doorCount, doorOrientation, doorDivision, handleType])
+  }, [length, height, depth, includeShelf, shelfCount, cabinetType, doorCount, doorOrientation, doorDivision, handleType, backConnectionType])
 
   const calculateDimensions = () => {
     let newDimensions: Dimensions = {
       floor: `${length}x${depth} ( x 1 )`,
-      sides: `${height}x${depth} ( x 2 )`,
+      sides: `${height - 1.6}x${depth} ( x 2 )`,
       top: `${length}x${depth} ( x 1 )`,
-      back: `${length}x${height} ( x 1 )`,
+      back: calculateBackDimensions(),
       door: calculateDoor(),
       additionalPiece: `7x${(length - 3.2).toFixed(1)} ( x 2 )`
     }
 
     if (cabinetType === 'base') {
       newDimensions.top = `7x${(length - 3.2).toFixed(1)} ( x 2 )`
-      newDimensions.back = `${length}x${(height - 2).toFixed(1)} ( x 1 )`
+      newDimensions.back = calculateBackDimensions()
       if (length > 110) {
         newDimensions.middlePartition = `7x${height} ( x 3 )`
       }
@@ -228,6 +244,36 @@ export default function CabinetCalculator() {
     }
 
     setDimensions(newDimensions)
+  }
+
+  const calculateBackDimensions = (): string => {
+    let backWidth: number
+    let backHeight: number
+
+    switch (backConnectionType) {
+      case 'mp-mounted':
+        if (cabinetType === 'base') {
+          backWidth = length
+          backHeight = height + 1.6
+        } else {
+          backWidth = length
+          backHeight = height
+        }
+        break
+      case 'mp-fitting':
+        backWidth = length - 1.6
+        backHeight = height - 1.6
+        break
+      case 'mdf-full-fit':
+        backWidth = length - 3.3
+        backHeight = height
+        break
+      default:
+        backWidth = length
+        backHeight = height
+    }
+
+    return `${backWidth.toFixed(1)}x${backHeight.toFixed(1)} ( x 1 )`
   }
 
   const calculateDoor = (): string => {
@@ -277,10 +323,16 @@ export default function CabinetCalculator() {
         doorOrientation,
         doorDivision,
         dimensions,
-        handleType
+        handleType,
+        backConnectionType
       }
       setHistory([...history, newUnit])
     }
+  }
+
+  const handleModelToggle = (checked: boolean) => {
+    setShowModel(checked)
+    localStorage.setItem('showModel', JSON.stringify(checked))
   }
 
   return (
@@ -301,15 +353,15 @@ export default function CabinetCalculator() {
         <div className={styles.grid}>
           <Card className={styles.card}>
             <CardHeader className={styles.cardHeader}>
-              <CardTitle className={styles.cardTitle}>
+              <CardTitle className="flex items-center gap-2">
                 <Calculator className="w-6 h-6" />
                 <span>{t.cabinetOptions}</span>
               </CardTitle>
-            </CardHeader>
+            </CardHeader >
             <CardContent className={styles.cardContent}>
               <div className={styles.optionsGrid}>
                 <div className={styles.optionSection}>
-                  <h3 className={styles.sectionTitle}>
+                  <h3 className={`${styles.sectionTitle} flex justify-center items-center`}>
                     <Ruler className="w-5 h-5" />
                     {t.dimensions}
                   </h3>
@@ -345,34 +397,53 @@ export default function CabinetCalculator() {
                   </div>
                 </div>
                 <div className={styles.optionSection}>
-                  <h3 className={styles.sectionTitle}>
-                    <DoorOpen className="w-5 h-5" />
+                  <h3 className={`${styles.sectionTitle} flex justify-center items-center`}>
+                    <DoorOpen className="w-6 h-6" />
                     {t.cabinetOptions}
                   </h3>
                   <div className={styles.radioGroup}>
                     <Label className={styles.label}>{t.cabinetType}</Label>
                     <RadioGroup defaultValue={cabinetType} onValueChange={(value: CabinetType) => setCabinetType(value)} className={styles.radioOptions}>
-                      <div className="flex items-center space-x-2">
+                      <div>
                         <RadioGroupItem value="base" id="base" />
                         <Label htmlFor="base">{t.baseType}</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div>
                         <RadioGroupItem value="wall" id="wall" />
                         <Label htmlFor="wall">{t.wallType}</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div>
                         <RadioGroupItem value="full" id="full" />
                         <Label htmlFor="full">{t.fullType}</Label>
                       </div>
                     </RadioGroup>
                   </div>
-                  <div className={styles.switchGroup}>
-                    <Switch
-                      id="include-shelf"
-                      checked={includeShelf}
-                      onCheckedChange={setIncludeShelf}
-                    />
-                    <Label htmlFor="include-shelf">{t.includeShelf}</Label>
+                  <div className={styles.selectGroup}>
+                  <Label htmlFor="backConnectionType" className={styles.label}>{t.backConnectionType}</Label>
+                  <Select
+                    value={backConnectionType}
+                    onValueChange={(value: BackConnectionType) => setBackConnectionType(value)}
+                  >
+                    <SelectTrigger className={`${styles.select} border-2 border-gray-300 rounded-lg`}>
+                      <SelectValue placeholder={t.backConnectionType} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-2 border-gray-300 rounded-lg shadow-lg">
+                      <SelectItem value="mp-mounted" className="hover:bg-gray-100">{t.mpMounted}</SelectItem>
+                      <SelectItem value="mp-fitting" className="hover:bg-gray-100">{t.mpFitting}</SelectItem>
+                      <SelectItem value="mdf-full-fit" className="hover:bg-gray-100">{t.mdfFullFit}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                  <div>
+                    <Toggle
+                      className="bg-gray-300 rounded-md p-2 transition-colors data-[state=on]:bg-green-500 data-[state=off]:bg-red-500"
+                      pressed={includeShelf}
+                      onPressedChange={setIncludeShelf}
+                      aria-label="Toggle shelf inclusion"
+                    >
+                      {t.includeShelf}
+                    </Toggle>
                   </div>
                   {includeShelf && (
                     <div>
@@ -388,7 +459,7 @@ export default function CabinetCalculator() {
                   )}
                 </div>
                 <div className={styles.optionSection}>
-                  <h3 className={styles.sectionTitle}>
+                  <h3 className={`${styles.sectionTitle} flex justify-center items-center`}>
                     <Layers className="w-5 h-5" />
                     {t.doorConfiguration}
                   </h3>
@@ -459,14 +530,15 @@ export default function CabinetCalculator() {
                       </SelectContent>
                     </Select>
                   </div>
+                  
                 </div>
               </div>
               <Separator className={styles.separator} />
               <div className={styles.calculatedDimensions}>
-                <h3 className={styles.sectionTitle}>
-                  <Calculator className="w-5 h-5" />
-                  {t.calculatedDimensions}
-                </h3>
+              <h3 className={`${styles.sectionTitle} flex justify-center items-center`}>
+                <Calculator className="w-5 h-5 mr-2" />
+                {t.calculatedDimensions}
+              </h3>
                 <AnimatePresence>
                   {dimensions && (
                     <motion.div
@@ -487,20 +559,29 @@ export default function CabinetCalculator() {
                 </AnimatePresence>
               </div>
               <div className={visualizationStyles.visualizationContainer}>
-                <h3 className={styles.sectionTitle}>
-                  <Eye className="w-5 h-5" />
-                  {t.cabinetVisualization}
-                </h3>
-                <CabinetVisualization
-                  type={cabinetType}
-                  length={length}
-                  height={height}
-                  depth={depth}
-                  doorCount={doorCount}
-                  doorOrientation={doorOrientation}
-                  doorDivision={doorDivision}
-                  handleType={handleType}
-                />
+                <div className={visualizationStyles.visualizationHeader}>
+                  <h3 className={styles.sectionTitle}>
+                    <Eye className="w-5 h-5" />
+                    {t.cabinetVisualization}
+                  </h3>
+                  <ModelToggle
+                    showModel={showModel}
+                    onToggle={handleModelToggle}
+                    label={t.showModel}
+                  />
+                </div>
+                {showModel && (
+                  <CabinetVisualization
+                    type={cabinetType}
+                    length={length}
+                    height={height}
+                    depth={depth}
+                    doorCount={doorCount}
+                    doorOrientation={doorOrientation}
+                    doorDivision={doorDivision}
+                    handleType={handleType}
+                  />
+                )}
               </div>
               <div className={styles.storeButtonContainer}>
                 <Button onClick={storeInHistory} size="lg" className={styles.storeButton}>
@@ -511,10 +592,10 @@ export default function CabinetCalculator() {
             </CardContent>
           </Card>
           <Card className={styles.card}>
-            <CardHeader className={styles.cardHeader}>
-              <CardTitle className={styles.cardTitle}>
-                <History className="w-6 h-6" />
-                <span>{t.cabinetHistory}</span>
+          <CardHeader className={`${styles.cardHeader} flex justify-end items-center`}>
+            <CardTitle className="flex items-center gap-2">
+              <History className="w-6 h-6" />
+              <span>{t.cabinetHistory}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className={styles.cardContent}>
@@ -542,6 +623,8 @@ export default function CabinetCalculator() {
                       {unit.dimensions.doorQeyd && <p><span className={styles.historyLabel}>{t.doorQeyd}:</span> {unit.dimensions.doorQeyd}</p>}
                       {unit.type === 'wall' && <p><span className={styles.historyLabel}>{t.doorOrientation}:</span> {t[unit.doorOrientation as keyof typeof t]}</p>}
                       {unit.type === 'full' && <p><span className={styles.historyLabel}>{t.doorDivision}:</span> {t[unit.doorDivision === 'length' ? 'byLength' : 'byHeight']}</p>}
+                      <p><span className={styles.historyLabel}>{t.handleType}:</span> {t[unit.handleType]}</p>
+                      <p><span className={styles.historyLabel}>{t.backConnectionType}:</span> {t[unit.backConnectionType.replace('-', '') as keyof typeof t]}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -553,3 +636,4 @@ export default function CabinetCalculator() {
     </div>
   )
 }
+

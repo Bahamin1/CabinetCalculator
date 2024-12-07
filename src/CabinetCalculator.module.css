@@ -1,9 +1,62 @@
 .container {
     min-height: 100vh;
-    background: linear-gradient(to bottom right, #EBF4FF, #E0E7FF);
+    background: linear-gradient(to bottom right, #ffffff, #0e0255);
     padding: 2rem;
-    transition: all 0.3s ease;
+    transition: all 0.5s ease;
 }
+
+/* Default (LTR) */
+body {
+    direction: ltr;
+    text-align: left;
+}
+
+/* For RTL (Farsi) */
+body[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+.inline-flex-center {
+    display: inline-flex;
+    /* Aligns items horizontally */
+    align-items: center;
+    /* Centers items vertically */
+    gap: 0.5rem;
+    /* Adds spacing between items */
+}
+
+.select-trigger {
+    background-color: #f9f9f9;
+    /* پس‌زمینه خنثی */
+    border: 1px solid #e0e0e0;
+    /* خط مرزی ظریف */
+    border-radius: 8px;
+    /* گوشه‌های گرد */
+    padding: 8px 12px;
+    /* فاصله داخلی */
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    /* فاصله بین متن و آیکون */
+}
+
+.select-trigger:hover {
+    background-color: #f0f0f0;
+    /* تغییر رنگ هنگام hover */
+}
+
+.select-trigger:focus {
+    border-color: #007bff;
+    /* رنگ مرزی هنگام فوکوس */
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3);
+    /* سایه هنگام فوکوس */
+}
+
 
 
 
@@ -77,6 +130,56 @@
     outline: none;
     box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
 }
+
+
+.visualizationContainer {
+    position: relative;
+    margin-top: 1rem;
+}
+
+.visualizationHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.modelContainer {
+    width: 100%;
+    height: 400px;
+}
+
+
+.custom-toggle {
+    background-color: #dcdcdc;
+    /* رنگ پیش‌فرض */
+    color: #000;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.custom-toggle[data-state="on"] {
+    background-color: #32cd32;
+    /* رنگ در حالت فعال */
+    color: #fff;
+}
+
+.custom-toggle[data-state="off"] {
+    background-color: #ff6347;
+    /* رنگ در حالت غیرفعال */
+    color: #fff;
+}
+
+.custom-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #000;
+}
+
+
+
 
 
 
